@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  database:
+    image: mysql:8.0.33
+    container_name: hellobd_mysql
+    ports:
+      - 3305:3305
+    environment:
+      MYSQL_ROOT_PASSWORD: test1234
+      MYSQL_DATABASE: hellobd
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --port=3305
+    volumes:
+      - ./instance_data/mysql:/var/lib/mysql
+      
+  cache:
+    image: redis:7.0.11
+    container_name: hellobd_redis
+    ports:
+      - 6378:6379
+    volumes:
+      - ./instance_data/redis:/data
+      
+  application:
+    container_name: hellobd_main
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+      - cache
+    ports:
+      - 8080:8080
+      - 5005:5005
+    restart: always
